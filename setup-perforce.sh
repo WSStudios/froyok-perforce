@@ -62,7 +62,19 @@ done
 # -h --help            - Display this help and exit
 
 if ! p4dctl list 2>/dev/null | grep -q $NAME; then
-    /opt/perforce/sbin/configure-helix-p4d.sh $NAME -n -p $P4PORT -r $P4ROOT -u $P4USER -P "${P4PASSWD}" --case 1
+    /opt/perforce/sbin/configure-helix-p4d.sh $NAME -n -p $P4PORT -r $P4ROOT -u $P4USER -P "${P4PASSWD}" 
+
+	# --case 1
+	# Cannot use case insensitive p4 with git fusion. Startup spits an error:
+	#     The Perforce service's case-handling policy is not set to 'sensitive', which
+	#     means any files introduced via Git whose names differ only by case may result
+	#     in data loss or errors during push. It is strongly advised to set the
+	#     case-handling policy to 'sensitive'.
+	# This sucks, because the UE docs suggest using case insensitive p4:
+	#      https://docs.unrealengine.com/en-US/Engine/Basics/SourceControl/Perforce/index.html
+	#      To avoid potential integration issues with our tools, such as UnrealGameSync, we 
+	#      recommend running a case-insensitive Perforce server.
+
 fi
 
 
@@ -106,7 +118,7 @@ if [ "$FRESHINSTALL" = "1" ]; then
 	p4 protect -i < /root/p4-protect.txt
 
 	# disable automatic user account creation
-	p4 configure set lbr.proxy.case=1
+	# p4 configure set lbr.proxy.case=1
 
 	# disable unauthorized viewing of Perforce user list
 	p4 configure set run.users.authorize=1
